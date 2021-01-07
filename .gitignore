@@ -130,3 +130,5 @@ dmypy.json
 
 # Notebooks
 ETL Pipeline Preparation.ipynb
+
+.idea/
