@@ -5,12 +5,13 @@ import matplotlib.pyplot as plt
 from sqlalchemy import create_engine
 
 def load_data(messages_filepath, categories_filepath):
-    pass
-
+    messages = pd.read_csv(messages_filepath)
+    categories = pd.read_csv(categories_filepath)
+    
+    return messages, categories
 
 def clean_data(df):
-    messages = pd.read_csv('data/disaster_messages.csv')
-    categories = pd.read_csv('data/disaster_categories.csv')
+    messages, categories = load_data('data/disaster_messages.csv', 'data/disaster_categories.csv')
     df = messages.merge(categories, how='inner')
     categories = df['categories'].str.split(pat=';', expand=True)
 
@@ -23,9 +24,7 @@ def clean_data(df):
 
     extract_bool = lambda x: int(x.split('-')[1])
     for column in categories:
-    # set each value to be the last character of the string
-    categories[column] = categories[column].apply(extract_bool)
-
+        categories[column] = categories[column].apply(extract_bool)
     # Replace categories column in df with new category columns
     df = df.drop('categories', axis=1) # drop the original categories column from `df`
     df = pd.concat([categories, df], axis=1) # concatenate the original dataframe with the new `categories` dataframe
@@ -33,14 +32,12 @@ def clean_data(df):
     # Remove duplicates
     duplicates_bool = df.duplicated()
     df = df[~duplicates_bool] # drop duplicates
-    # Save the clean dataset into an sqlite database
-    engine = create_engine('sqlite:///data/disaster_db.db')
-    df.to_sql('data', engine, index=False)
-    pass
+    
 
 
 def save_data(df, database_filename):
-    pass  
+    engine = create_engine('sqlite:///data/{}.db'.format(database_filename))
+    df.to_sql('data', engine, index=False)
 
 
 def main():
