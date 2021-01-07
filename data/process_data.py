@@ -2,6 +2,7 @@ import sys
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from sqlalchemy import create_engine
 
 def load_data(messages_filepath, categories_filepath):
     pass
@@ -32,7 +33,9 @@ def clean_data(df):
     # Remove duplicates
     duplicates_bool = df.duplicated()
     df = df[~duplicates_bool] # drop duplicates
-    
+    # Save the clean dataset into an sqlite database
+    engine = create_engine('sqlite:///data/disaster_db.db')
+    df.to_sql('data', engine, index=False)
     pass
 
 
