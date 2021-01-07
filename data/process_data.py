@@ -18,6 +18,18 @@ def clean_data(df):
     extract_col_names = lambda x: x.str.split('-')[0][0]
     category_colnames = categories.apply(extract_col_names)
     
+    categories.columns = category_colnames
+
+    extract_bool = lambda x: int(x.split('-')[1])
+    for column in categories:
+    # set each value to be the last character of the string
+    categories[column] = categories[column].apply(extract_bool)
+
+    # 5. Replace categories column in df with new category columns
+    # drop the original categories column from `df`
+    df = df.drop('categories', axis=1)
+    # concatenate the original dataframe with the new `categories` dataframe
+    df = pd.concat([categories, df], axis=1)
     
     pass
 
