@@ -25,11 +25,13 @@ def clean_data(df):
     # set each value to be the last character of the string
     categories[column] = categories[column].apply(extract_bool)
 
-    # 5. Replace categories column in df with new category columns
-    # drop the original categories column from `df`
-    df = df.drop('categories', axis=1)
-    # concatenate the original dataframe with the new `categories` dataframe
-    df = pd.concat([categories, df], axis=1)
+    # Replace categories column in df with new category columns
+    df = df.drop('categories', axis=1) # drop the original categories column from `df`
+    df = pd.concat([categories, df], axis=1) # concatenate the original dataframe with the new `categories` dataframe
+
+    # Remove duplicates
+    duplicates_bool = df.duplicated()
+    df = df[~duplicates_bool] # drop duplicates
     
     pass
 
