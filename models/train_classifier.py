@@ -1,8 +1,16 @@
 import sys
+from typing import Union, Iterator
+
+import pandas as pd
+from pandas import DataFrame
+from sqlalchemy import create_engine
 
 
 def load_data(database_filepath):
-    pass
+    engine = create_engine('sqlite:/// {}'.format(database_filepath))
+    df = pd.read_sql('data', engine)
+
+    return df
 
 
 def tokenize(text):
