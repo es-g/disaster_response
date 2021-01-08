@@ -16,16 +16,12 @@ def clean_data(df):
 
     categories = df['categories'].str.split(pat=';', expand=True)
 
-    row = categories.head(1)
+    category_columns = categories.apply(lambda x: x.str.split('-')[0][0])
 
-    extract_col_names = lambda x: x.str.split('-')[0][0]
-    category_colnames = categories.apply(extract_col_names)
+    categories.columns = category_columns
 
-    categories.columns = category_colnames
-
-    extract_bool = lambda x: int(x.split('-')[1])
     for column in categories:
-        categories[column] = categories[column].apply(extract_bool)
+        categories[column] = categories[column].apply(lambda x: int(x.split('-')[1]))
     # Replace categories column in df with new category columns
     df = df.drop('categories', axis=1)  # drop the original categories column from `df`
     df = pd.concat([categories, df], axis=1)  # concatenate the original dataframe with the new `categories` dataframe
@@ -61,11 +57,11 @@ def main():
         print('Cleaned data saved to database!')
 
     else:
-        print('Please provide the filepaths of the messages and categories ' \
-              'datasets as the first and second argument respectively, as ' \
-              'well as the filepath of the database to save the cleaned data ' \
-              'to as the third argument. \n\nExample: python process_data.py ' \
-              'disaster_messages.csv disaster_categories.csv ' \
+        print('Please provide the filepath of the messages and categories ' 
+              'datasets as the first and second argument respectively, as ' 
+              'well as the filepath of the database to save the cleaned data ' 
+              'to as the third argument. \n\nExample: python process_data.py '
+              'disaster_messages.csv disaster_categories.csv ' 
               'DisasterResponse.db')
 
 
