@@ -4,8 +4,16 @@ from sqlalchemy import create_engine
 
 
 def load_data(messages_filepath, categories_filepath):
+    """
+    Load data from csv files and return the merged data as a DataFrame
+
+    :param messages_filepath: filepath to disaster_messages.csv file
+    :param categories_filepath: filepath disaster_categories.csv file
+    :return: merged DataFrame
+    """
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
+    # Merge the messages and categories datasets using the common id
     df = messages.merge(categories, how='inner')
 
     return df
@@ -13,7 +21,7 @@ def load_data(messages_filepath, categories_filepath):
 
 def clean_data(df):
     df = load_data('disaster_messages.csv', 'disaster_categories.csv')
-
+    # Split the values in the `categories` column on the `;` character
     categories = df['categories'].str.split(pat=';', expand=True)
 
     category_columns = categories.apply(lambda x: x.str.split('-')[0][0])
