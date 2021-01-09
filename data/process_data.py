@@ -22,6 +22,7 @@ def load_data(messages_filepath, categories_filepath):
 def clean_data():
     """
     Cleans original DataFrame and returns cleaned DataFrame
+
     :return: cleaned DataFrame
     """
     df = load_data('disaster_messages.csv', 'disaster_categories.csv')
@@ -47,6 +48,12 @@ def clean_data():
 
 
 def save_data(database_filename):
+    """
+    Saves cleaned data to a database
+
+    :param database_filename:
+    :return: None
+    """
     engine = create_engine('sqlite:///{}'.format(database_filename))
     df = clean_data()
     df.to_sql('data', engine, index=False)
