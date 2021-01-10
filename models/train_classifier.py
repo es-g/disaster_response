@@ -30,6 +30,12 @@ def load_data(database_filepath):
 
 
 def tokenize(text):
+    """
+    Tokenizes text by normalizing, lemmatizing, removing stop words and white spaces
+
+    :param text: Raw text
+    :return: words: Tokenized list of words
+    """
     text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower().strip())  # Normalize text and remove white space
     words = word_tokenize(text)  # Tokenize text
     words = [w for w in words if w not in stopwords.words("english")]  # Remove stop words
