@@ -3,6 +3,13 @@ from typing import Union, Iterator
 import pandas as pd
 from pandas import DataFrame
 from sqlalchemy import create_engine
+import nltk
+import re
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem.wordnet import WordNetLemmatizer
+from sklearn.model_selection import train_test_split
+nltk.download(['stopwords', 'wordnet', 'punkt'])
 
 
 def load_data(database_filepath):
@@ -17,7 +24,13 @@ def load_data(database_filepath):
 
 
 def tokenize(text):
-    pass
+    text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower().strip())  # Normalize text and remove white space
+    words = word_tokenize(text)  # Tokenize text
+    words = [w for w in words if w not in stopwords.words("english")]  # Remove stop words
+    words = [WordNetLemmatizer().lemmatize(w) for w in words]  # Lemmatize
+    words = [WordNetLemmatizer().lemmatize(w, pos='v') for w in words]  # Lemmatize verbs by specifying pos
+
+    return words
 
 
 def build_model():
