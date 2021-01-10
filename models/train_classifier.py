@@ -13,6 +13,12 @@ nltk.download(['stopwords', 'wordnet', 'punkt'])
 
 
 def load_data(database_filepath):
+    """
+    Reads data from SQL database into pandas DataFrame, splits by X and Y
+
+    :param database_filepath: filepath to SQL database
+    :return: X, Y: feature and target variables
+    """
     engine = create_engine('sqlite:/// {}'.format(database_filepath))
     df = pd.read_sql('data', engine)  # Load data from database to pandas DataFrame
     categories = df.select_dtypes(include=['int64'])  # Select only int64 datatypes
