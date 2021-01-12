@@ -1,6 +1,7 @@
 import sys
 import pandas as pd
 from sqlalchemy import create_engine
+import numpy as np
 
 
 def load_data(messages_filepath, categories_filepath):
@@ -43,6 +44,11 @@ def clean_data():
     # Remove duplicates
     duplicates_bool = df.duplicated()
     df = df[~duplicates_bool]
+    # Drop rows with elements other than 0 or 1
+    categories = df.select_dtypes(include=['int64'])  # Select only int64 datatypes
+    categories = categories.drop('id', axis=1)
+    indices = categories[np.isin(categories, [0, 1], invert=True)].index
+    df = df.drop(index=indices)
 
     return df
 
