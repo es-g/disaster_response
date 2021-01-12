@@ -56,10 +56,7 @@ def clean_data():
         return re.search("^\s*$", msg)
 
     is_blank = [is_empty_or_blank(elem) for elem in df['message']]
-    ind = []
-    for i, res in enumerate(is_blank):
-        if res is not None:
-            ind.append(i)
+    ind = [i for i, val in enumerate(is_blank) if val is not None]
     # Drop elements that contain empty message
     df = df.drop(index=ind)
 
