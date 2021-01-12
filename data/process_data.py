@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 import numpy as np
 import re
 
+
 def load_data(messages_filepath, categories_filepath):
     """
     Load data from csv files and return the merged data as a DataFrame
@@ -51,11 +52,10 @@ def clean_data():
     df = df.drop(index=indices)
 
     def is_empty_or_blank(msg):
-        """ This function checks if given string is empty
-         or contain only white spaces"""
+        """Checks if given string is empty or contain only white spaces"""
         return re.search("^\s*$", msg)
 
-    is_blank = [is_empty_or_blank(elem) for elem in df['messages']]
+    is_blank = [is_empty_or_blank(elem) for elem in df['message']]
     ind = []
     for i, res in enumerate(is_blank):
         if res is not None:
