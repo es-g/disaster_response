@@ -2,7 +2,7 @@ import sys
 import pandas as pd
 from sqlalchemy import create_engine
 import numpy as np
-
+import re
 
 def load_data(messages_filepath, categories_filepath):
     """
@@ -49,6 +49,19 @@ def clean_data():
     categories = categories.drop('id', axis=1)
     indices = categories[np.isin(categories, [0, 1], invert=True)].index
     df = df.drop(index=indices)
+
+    def is_empty_or_blank(msg):
+        """ This function checks if given string is empty
+         or contain only white spaces"""
+        return re.search("^\s*$", msg)
+
+    is_blank = [is_empty_or_blank(elem) for elem in df['messages']]
+    ind = []
+    for i, res in enumerate(is_blank):
+        if res is not None:
+            ind.append(i)
+    # Drop elements that contain empty message
+    df = df.drop(index=ind)
 
     return df
 
