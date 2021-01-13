@@ -58,7 +58,7 @@ def clean_data():
     is_blank = [is_empty_or_blank(elem) for elem in df['message']]
     ind = [i for i, val in enumerate(is_blank) if val is not None]
     # Drop elements that contain empty message
-    df = df.drop(index=ind)
+    df.drop(index=ind, inplace=True)
 
     return df
 
