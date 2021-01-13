@@ -2,6 +2,8 @@ import sys
 from typing import Union, Iterator
 import pandas as pd
 from pandas import DataFrame
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sqlalchemy import create_engine
 import nltk
 import re
@@ -9,6 +11,12 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem.wordnet import WordNetLemmatizer
 from sklearn.model_selection import train_test_split
+from sklearn.multioutput import MultiOutputClassifier
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import roc_auc_score
+from sklearn.metrics import classification_report
+
 nltk.download(['stopwords', 'wordnet', 'punkt'])
 
 
@@ -24,9 +32,9 @@ def load_data(database_filepath):
     categories = df.select_dtypes(include=['int64'])  # Select only int64 datatypes
     categories = categories.drop('id', axis=1)  # Drop id column as irrelevant
     X = df['message']
-    Y = categories
+    y = categories
 
-    return X, Y
+    return X, y
 
 
 def tokenize(text):
@@ -46,7 +54,17 @@ def tokenize(text):
 
 
 def build_model():
-    pass
+    X, y = load_data('data/DisasterResponse.db')
+    X_train, X_test, y_train, y_test = train_test_split(X, y)
+
+    classifier = MultiOutputClassifier(RandomForestClassifier())
+    pipeline = Pipeline([
+        ('vect', CountVectorizer(tokenizer=tokenize)),
+        ('tfidf', TfidfTransformer()),
+        ('clf', classifier)
+    ])
+
+    return pipeline
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
