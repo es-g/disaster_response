@@ -128,8 +128,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Jupyter Notebooks
-*.ipynb
+# Jupyter Notebook
+ETL Pipeline Preparation.ipynb
 
 .idea/
 
