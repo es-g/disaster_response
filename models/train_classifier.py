@@ -22,19 +22,29 @@ nltk.download(['stopwords', 'wordnet', 'punkt'])
 
 def load_data(database_filepath):
     """
-    Reads data from SQL database into pandas DataFrame, splits by X and Y
+    Reads data from SQL database into pandas DataFrame, splits by X, y and category_names
 
     :param database_filepath: filepath to SQL database
-    :return: X, Y: feature and target variables
+    :type database_filepath: str
+
+    :return:
+            X: feature variable (message)
+            y: target variables' values (0 or 1)
+            category_names: names of categories
+
+    :rtype X: array_like
+    :rtype y: int
+    :rtype category_names: str
     """
     engine = create_engine('sqlite:/// {}'.format(database_filepath))
     df = pd.read_sql('data', engine)  # Load data from database to pandas DataFrame
     categories = df.select_dtypes(include=['int64'])  # Select only int64 datatypes
     categories = categories.drop('id', axis=1)  # Drop id column as irrelevant
-    X = df['message']
-    y = categories
+    X = df['message'].values
+    y = categories.values
+    category_names = list(categories.columns)
 
-    return X, y
+    return X, y, category_names
 
 
 def tokenize(text):
@@ -68,6 +78,7 @@ def build_model():
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
+
     pass
 
 
