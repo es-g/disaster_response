@@ -64,8 +64,6 @@ def tokenize(text):
 
 
 def build_model():
-    X, y = load_data('data/DisasterResponse.db')
-    X_train, X_test, y_train, y_test = train_test_split(X, y)
 
     classifier = MultiOutputClassifier(RandomForestClassifier())
     pipeline = Pipeline([
@@ -78,8 +76,15 @@ def build_model():
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    y_pred = model.predict(X_test) # Predict model
 
-    pass
+    for i in range(len(category_names)):
+        print("Category: {}\n {}\n {}\n______".format(
+            category_names[i],
+            classification_report(Y_test[:, i], y_pred[:, i]),
+            confusion_matrix(Y_test[:, i], y_pred[:, i])
+
+        ))
 
 
 def save_model(model, model_filepath):
