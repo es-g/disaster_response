@@ -16,7 +16,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import classification_report
-
+import gzip, pickle, pickletools
 nltk.download(['stopwords', 'wordnet', 'punkt'])
 
 
@@ -76,7 +76,7 @@ def build_model():
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
-    y_pred = model.predict(X_test) # Predict model
+    y_pred = model.predict(X_test)  # Predict model
 
     for i in range(len(category_names)):
         print("Category: {}\n {}\n {}\n______".format(
@@ -88,7 +88,11 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
 
 def save_model(model, model_filepath):
-    pass
+
+    with gzip.open(model_filepath, "wb") as f:
+        pickled = pickle.dumps(model)
+        optimized_pickle = pickletools.optimize(pickled)
+        f.write(optimized_pickle)
 
 
 def main():
@@ -96,7 +100,7 @@ def main():
         database_filepath, model_filepath = sys.argv[1:]
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
         X, Y, category_names = load_data(database_filepath)
-        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
+        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
 
         print('Building model...')
         model = build_model()
@@ -113,9 +117,9 @@ def main():
         print('Trained model saved!')
 
     else:
-        print('Please provide the filepath of the disaster messages database ' \
-              'as the first argument and the filepath of the pickle file to ' \
-              'save the model to as the second argument. \n\nExample: python ' \
+        print('Please provide the filepath of the disaster messages database '
+              'as the first argument and the filepath of the pickle file to ' 
+              'save the model to as the second argument. \n\nExample: python ' 
               'train_classifier.py ../data/DisasterResponse.db classifier.pkl')
 
 
