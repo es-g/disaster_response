@@ -1,24 +1,23 @@
-import sys
-from typing import Union, Iterator
-import pandas as pd
-from pandas import DataFrame
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-from sqlalchemy import create_engine
-import nltk
+import gzip
+import pickle
+import pickletools
 import re
-from nltk.tokenize import word_tokenize
+import sys
+
+import nltk
+import pandas as pd
 from nltk.corpus import stopwords
 from nltk.stem.wordnet import WordNetLemmatizer
+from nltk.tokenize import word_tokenize
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.metrics import accuracy_score, precision_score, recall_score
+from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.pipeline import Pipeline
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import roc_auc_score, accuracy_score, precision_score, recall_score
-from sklearn.metrics import classification_report
-from sklearn.model_selection import GridSearchCV
-from time import time
-import gzip, pickle, pickletools
+from sqlalchemy import create_engine
+
 nltk.download(['stopwords', 'wordnet', 'punkt'])
 
 
@@ -38,7 +37,7 @@ def load_data(database_filepath):
     :rtype y: int
     :rtype category_names: str
     """
-    engine = create_engine('sqlite:/// {}'.format(database_filepath))
+    engine = create_engine('sqlite:///{}'.format(database_filepath))
     df = pd.read_sql('data', engine)  # Load data from database to pandas DataFrame
     categories = df.select_dtypes(include=['int64'])  # Select only int64 datatypes
     categories = categories.drop('id', axis=1)  # Drop id column as irrelevant
@@ -67,7 +66,7 @@ def tokenize(text):
 
 def build_model():
 
-    classifier = MultiOutputClassifier(RandomForestClassifier())
+    classifier = MultiOutputClassifier(RandomForestClassifier(n_jobs=-1))
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
@@ -110,7 +109,7 @@ def evaluate_model(model, X_test, Y_test, category_names):
             accuracy_score(Y_test[:, i], y_pred[:, i]),
             precision_score(Y_test[:, i], y_pred[:, i]),
             recall_score(Y_test[:, i], y_pred[:, i])
-        )
+            )
         )
 
 
