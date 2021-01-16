@@ -13,12 +13,12 @@ from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar
 import joblib
 from sqlalchemy import create_engine
-import dash
-from dash.dependencies import Input, Output
-import dash_core_components as dcc
-import dash_html_components as html
-
-from pandas_datareader import data as web
+# import dash
+# from dash.dependencies import Input, Output
+# import dash_core_components as dcc
+# import dash_html_components as html
+#
+# from pandas_datareader import data as web
 from datetime import datetime as dt
 
 app = Flask(__name__)
@@ -54,41 +54,39 @@ with gzip.open("../models/classifier.pkl", 'rb') as f:
 def index():
 
     # extract data needed for visuals
-    # TODO: Below is an example - modify to extract data for your own visuals
-    # genre_counts = df.groupby('genre').count()['message']
-    # genre_names = list(genre_counts.index)
+    mean_categories = categories.mean()
+    category_names = categories.columns
 
     # create visuals
-    # TODO: Below is an example - modify to create your own visuals
-    # graphs = [
-    #     {
-    #         'data': [
-    #             Bar(
-    #                 x=genre_names,
-    #                 y=genre_counts
-    #             )
-    #         ],
-    #
-    #         'layout': {
-    #             'title': 'Distribution of Message Genres',
-    #             'yaxis': {
-    #                 'title': "Count"
-    #             },
-    #             'xaxis': {
-    #                 'title': "Genre"
-    #             }
-    #         }
-    #     }
-    # ]
+    graphs = [
+        {
+            'data': [
+                Bar(
+                    x=category_names,
+                    y=mean_categories
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of messages categories',
+                'yaxis': {
+                    'title': ""
+                },
+                'xaxis': {
+                    'title': ""
+                }
+            }
+        }
+    ]
 
     # encode plotly graphs in JSON
-    # ids = ["graph-{}".format(i) for i, _ in enumerate(graphs)]
-    # graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
+    ids = ["graph-{}".format(i) for i, _ in enumerate(graphs)]
+    graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
 
     # render web page with plotly graphs
-    # return render_template('master.html', ids=ids, graphJSON=graphJSON)
+    return render_template('master.html', ids=ids, graphJSON=graphJSON)
 
-    return render_template('master.html')
+    # return render_template('master.html')
 
 
 # web page that handles user query and displays model results
