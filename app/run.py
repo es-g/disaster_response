@@ -13,6 +13,13 @@ from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar
 import joblib
 from sqlalchemy import create_engine
+import dash
+from dash.dependencies import Input, Output
+import dash_core_components as dcc
+import dash_html_components as html
+
+from pandas_datareader import data as web
+from datetime import datetime as dt
 
 app = Flask(__name__)
 
@@ -32,9 +39,11 @@ def tokenize(text):
 # load data
 engine = create_engine('sqlite:///../data/DisasterResponse.db')
 df = pd.read_sql('data', engine)
+categories = df.select_dtypes(include=['int64'])  # Select only int64 datatypes
+categories = categories.drop('id', axis=1)  # Drop id column as irrelevant
 
 # load model
-with gzip.open("../model.pkl", 'rb') as f:
+with gzip.open("../models/classifier.pkl", 'rb') as f:
     p = pickle.Unpickler(f)
     model = p.load()
 
@@ -43,6 +52,7 @@ with gzip.open("../model.pkl", 'rb') as f:
 @app.route('/')
 @app.route('/index')
 def index():
+
     # extract data needed for visuals
     # TODO: Below is an example - modify to extract data for your own visuals
     # genre_counts = df.groupby('genre').count()['message']
@@ -80,9 +90,9 @@ def index():
 
     return render_template('master.html')
 
+
 # web page that handles user query and displays model results
 @app.route('/go')
-
 def go():
     # save user input in query
     query = request.args.get('query', '')
