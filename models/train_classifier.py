@@ -17,6 +17,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.pipeline import Pipeline
 from sqlalchemy import create_engine
+from xgboost import XGBClassifier
 
 nltk.download(['stopwords', 'wordnet', 'punkt'])
 
@@ -65,37 +66,32 @@ def tokenize(text):
 
 
 def build_model():
-
-    classifier = MultiOutputClassifier(RandomForestClassifier(n_jobs=-1))
+    cache_dir = "."
+    xgb = MultiOutputClassifier(estimator=XGBClassifier(n_jobs=-1), n_jobs=-1)
     pipeline = Pipeline([
-        ('vect', CountVectorizer(tokenizer=tokenize)),
-        ('tfidf', TfidfTransformer()),
-        ('clf', classifier)
-    ])
+        ('vect', CountVectorizer(tokenizer=tokenize, ngram_range=(1, 1))),
+        ('tfidf', TfidfTransformer(use_idf=True)),
+        ('clf', xgb)
+    ], memory=cache_dir, verbose=True)
 
     return pipeline
 
 
-def build_model_GridSearch():
-    classifier = MultiOutputClassifier(RandomForestClassifier())
+def build_model_gridSearch():
+    cache_dir = "."
+    xgb = MultiOutputClassifier(estimator=XGBClassifier(n_jobs=-1), n_jobs=-1)
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
-        ('clf', classifier)
-    ])
+        ('clf', xgb)
+    ], memory=cache_dir, verbose=True)
 
     parameters = {
         'vect__ngram_range': ((1, 1), (1, 2)),
-        'vect__max_df': (0.5, 0.75, 1.0),
-        'vect__max_features': (None, 5000, 10000),
         'tfidf__use_idf': (True, False),
-        'tfidf__norm': ('l1', 'l2'),
-        'clf__estimator__min_samples_split': [2, 4, 6],
-        'clf__estimator__max_depth': [None, 80, 90, 100],
-        'clf__estimator__n_estimators': [50, 100, 200, 300, 1000]
     }
 
-    cv = GridSearchCV(pipeline, param_grid=parameters)
+    cv = GridSearchCV(pipeline, param_grid=parameters, verbose=3)
 
     return cv
 
@@ -145,19 +141,14 @@ def main():
 
         # Grid Search
         print('Building model with GridSearch...')
-        model_cv = build_model_GridSearch()
+        model_cv = build_model_gridSearch()
         print(model_cv.get_params())
 
         print('Training model GridSearch...')
         model_cv.fit(X_train, Y_train)
 
-        print('Evaluating model...')
-        evaluate_model(model_cv, X_test, Y_test, category_names)
         print("\nBest Parameters:", model_cv.best_params_)
 
-        print('Saving GridSearch model...\n    MODEL: {}'.format(cv_model_filepath))
-        save_model(model_cv, cv_model_filepath)
-        print('Trained model saved!')
     else:
         print('Please provide the filepath of the disaster messages database '
               'as the first argument and the filepath of the pickle file to ' 
