@@ -118,8 +118,8 @@ def save_model(model, model_filepath):
 
 
 def main():
-    if len(sys.argv) == 3:
-        database_filepath, model_filepath = sys.argv[1:]
+    if len(sys.argv) == 4:
+        database_filepath, model_filepath = sys.argv[1:3]
 
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
         X, Y, category_names = load_data(database_filepath)
@@ -138,22 +138,22 @@ def main():
         save_model(model, model_filepath)
 
         print('Trained model saved!')
+        if sys.argv[3] == 1:
+            # Grid Search
+            print('Building model with GridSearch...')
+            model_cv = build_model_gridSearch()
+            print(model_cv.get_params())
 
-        # Grid Search
-        print('Building model with GridSearch...')
-        model_cv = build_model_gridSearch()
-        print(model_cv.get_params())
+            print('Training model GridSearch...')
+            model_cv.fit(X_train, Y_train)
 
-        print('Training model GridSearch...')
-        model_cv.fit(X_train, Y_train)
-
-        print("\nBest Parameters:", model_cv.best_params_)
+            print("\nBest Parameters:", model_cv.best_params_)
 
     else:
         print('Please provide the filepath of the disaster messages database '
               'as the first argument and the filepath of the pickle file to ' 
               'save the model to as the second argument. \n\nExample: python ' 
-              'train_classifier.py ../data/DisasterResponse.db classifier.pkl')
+              'train_classifier.py ../data/DisasterResponse.db classifier.pkl 0')
 
 
 if __name__ == '__main__':
