@@ -88,7 +88,7 @@ def build_model_gridSearch():
 
     parameters = {
         'vect__ngram_range': ((1, 1), (1, 2)),
-        'tfidf__use_idf': (True, False),
+        'tfidf__use_idf': (True, False)
     }
 
     cv = GridSearchCV(pipeline, param_grid=parameters, verbose=3)
@@ -152,8 +152,9 @@ def main():
     else:
         print('Please provide the filepath of the disaster messages database '
               'as the first argument and the filepath of the pickle file to ' 
-              'save the model to as the second argument. \n\nExample: python ' 
-              'train_classifier.py ../data/DisasterResponse.db classifier.pkl 0')
+              'save the model to as the second argument and 0 or 1 as the third argument. \n'
+              '(0 to skip Grid Search, 1 to run Grid Search)'
+              ' \nExample: python train_classifier.py ../data/DisasterResponse.db classifier.pkl 0')
 
 
 if __name__ == '__main__':
