@@ -13,12 +13,6 @@ from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar
 import joblib
 from sqlalchemy import create_engine
-# import dash
-# from dash.dependencies import Input, Output
-# import dash_core_components as dcc
-# import dash_html_components as html
-#
-# from pandas_datareader import data as web
 from datetime import datetime as dt
 
 app = Flask(__name__)
@@ -86,20 +80,16 @@ def index():
     # render web page with plotly graphs
     return render_template('master.html', ids=ids, graphJSON=graphJSON)
 
-    # return render_template('master.html')
-
 
 # web page that handles user query and displays model results
 @app.route('/go')
 def go():
     # save user input in query
     query = request.args.get('query', '')
-
     # use model to predict classification for query
     classification_labels = model.predict([query])[0]
     classification_results = dict(zip(df.columns[4:], classification_labels))
-
-    # This will render the go.html Please see that file. 
+    # This will render the go.html Please see that file.
     return render_template(
         'go.html',
         query=query,
