@@ -135,3 +135,7 @@ ETL Pipeline Preparation.ipynb
 
 # Databases
 *.db
+
+# joblib
+/models/joblib
+
