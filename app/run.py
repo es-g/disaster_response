@@ -109,7 +109,7 @@ def go():
     query = request.args.get('query', '')
     # use model to predict classification for query
     classification_labels = model.predict([query])[0]
-    classification_results = dict(zip(df.columns[4:], classification_labels))
+    classification_results = dict(zip(categories, classification_labels))
     # This will render the go.html Please see that file.
     return render_template(
         'go.html',
