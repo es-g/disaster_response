@@ -9,11 +9,9 @@ from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 
 from flask import Flask
-from flask import render_template, request, jsonify
+from flask import render_template, request
 from plotly.graph_objs import Bar
-import joblib
 from sqlalchemy import create_engine
-from datetime import datetime as dt
 
 app = Flask(__name__)
 
