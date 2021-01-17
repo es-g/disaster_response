@@ -50,6 +50,8 @@ def index():
     # extract data needed for visuals
     mean_categories = categories.mean()
     category_names = categories.columns
+    genre_counts = df.groupby('genre').count()['message']
+    genre_names = list(genre_counts.index)
 
     # create visuals
     graphs = [
@@ -68,6 +70,25 @@ def index():
                 },
                 'xaxis': {
                     'title': ""
+                }
+            }
+        },
+
+        {
+            'data': [
+                Bar(
+                    x=genre_names,
+                    y=genre_counts
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of message genres',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Genre"
                 }
             }
         }
