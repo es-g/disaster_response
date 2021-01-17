@@ -67,7 +67,9 @@ def tokenize(text):
 
 def build_model():
     cache_dir = "."
-    xgb = MultiOutputClassifier(estimator=XGBClassifier(n_jobs=-1), n_jobs=-1)
+    xgb = MultiOutputClassifier(estimator=XGBClassifier(n_jobs=-1,
+                                                        scale_pos_weight=5),
+                                n_jobs=-1)
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize, ngram_range=(1, 1))),
         ('tfidf', TfidfTransformer(use_idf=True)),
@@ -79,7 +81,9 @@ def build_model():
 
 def build_model_gridSearch():
     cache_dir = "."
-    xgb = MultiOutputClassifier(estimator=XGBClassifier(n_jobs=-1), n_jobs=-1)
+    xgb = MultiOutputClassifier(estimator=XGBClassifier(n_jobs=-1,
+                                                        scale_pos_weight=5),
+                                n_jobs=-1)
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
@@ -138,7 +142,7 @@ def main():
         save_model(model, model_filepath)
 
         print('Trained model saved!')
-        if sys.argv[3] == 1:
+        if sys.argv[3] == '1':
             # Grid Search
             print('Building model with GridSearch...')
             model_cv = build_model_gridSearch()
