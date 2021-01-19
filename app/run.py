@@ -29,7 +29,7 @@ def tokenize(text):
 
 
 # load data
-df = pd.read_csv('../data/DisasterResponse.csv')
+df = pd.read_csv('DisasterResponse.csv')
 categories = df.select_dtypes(include=['int64'])  # Select only int64 datatypes
 categories = categories.drop('id', axis=1)  # Drop id column as irrelevant
 
