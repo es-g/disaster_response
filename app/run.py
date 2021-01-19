@@ -29,8 +29,7 @@ def tokenize(text):
 
 
 # load data
-engine = create_engine('sqlite:///../data/DisasterResponse.db')
-df = pd.read_sql('data', engine)
+df = pd.read_csv('../data/DisasterResponse.csv')
 categories = df.select_dtypes(include=['int64'])  # Select only int64 datatypes
 categories = categories.drop('id', axis=1)  # Drop id column as irrelevant
 
