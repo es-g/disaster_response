@@ -10,7 +10,7 @@ from nltk.corpus import stopwords
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-from sklearn.metrics import accuracy_score, precision_score, recall_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
 from sklearn.multioutput import MultiOutputClassifier
@@ -65,6 +65,11 @@ def tokenize(text):
 
 
 def build_model():
+    """
+    Builds machine learning model with pipeline
+
+    :return: pipeline: ML model
+    """
     cache_dir = "."
     xgb = MultiOutputClassifier(estimator=XGBClassifier(n_jobs=-1,
                                                         scale_pos_weight=5),
@@ -78,7 +83,13 @@ def build_model():
     return pipeline
 
 
-def build_model_gridSearch():
+def build_model_gridsearch():
+    """
+    Performs grid search to find best parameters
+
+    :return: cv: GridSearch model
+
+    """
     cache_dir = "."
     xgb = MultiOutputClassifier(estimator=XGBClassifier(n_jobs=-1,
                                                         scale_pos_weight=5),
@@ -100,20 +111,36 @@ def build_model_gridSearch():
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    """
+    Scores the model using accuracy, precision, recall and f1_score
+
+    :param model: ML model returned by build_model() function
+    :param X_test: Predictor variable of test data
+    :param Y_test: Target variable of test data
+    :param category_names: Name of the target variable (category). E.g., food, water, etc.
+    :return: None
+    """
     y_pred = model.predict(X_test)  # Predict model
 
     for i in range(len(category_names)):
-        print("Category: {}\n Accuracy: {:.3f}\t Precision: {:.3f}\t Recall: {:.3f} \n\n".format(
+        print("Category: {}\n Accuracy: {:.3f}\t Precision: {:.3f}\t Recall: {:.3f}\t f1 score: {:.3f} \n\n".format(
             category_names[i],
             accuracy_score(Y_test[:, i], y_pred[:, i]),
             precision_score(Y_test[:, i], y_pred[:, i]),
-            recall_score(Y_test[:, i], y_pred[:, i])
+            recall_score(Y_test[:, i], y_pred[:, i]),
+            f1_score(Y_test[:, i, y_pred[:, i]])
             )
         )
 
 
 def save_model(model, model_filepath):
+    """
+    Saves the model into pickle file
 
+    :param model: ML model
+    :param model_filepath: filepath
+    :return: None
+    """
     with gzip.open(model_filepath, "wb") as f:
         pickled = pickle.dumps(model)
         optimized_pickle = pickletools.optimize(pickled)
@@ -144,7 +171,7 @@ def main():
         if sys.argv[3] == '1':
             # Grid Search
             print('Building model with GridSearch...')
-            model_cv = build_model_gridSearch()
+            model_cv = build_model_gridsearch()
             print(model_cv.get_params())
 
             print('Training model GridSearch...')
