@@ -29,7 +29,8 @@ def tokenize(text):
 
 
 # load data
-df = pd.read_csv('https://raw.githubusercontent.com/es-g/disaster_response/master/app/DisasterResponse.csv')
+engine = create_engine('sqlite:///../data/DisasterResponse.db')
+df = pd.read_sql_table('data', engine)
 categories = df.select_dtypes(include=['int64'])  # Select only int64 datatypes
 categories = categories.drop('id', axis=1)  # Drop id column as irrelevant
 
@@ -118,5 +119,5 @@ def go():
 # def main():
 #
 #
-# if __name__ == '__main__':
-#     main()
+if __name__ == "__main__":
+    app.run(host='127.0.0.1', port=3001, debug=True)
