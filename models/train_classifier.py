@@ -39,8 +39,7 @@ def load_data(database_filepath):
     """
     engine = create_engine('sqlite:///{}'.format(database_filepath))
     df = pd.read_sql('data', engine)  # Load data from database to pandas DataFrame
-    categories = df.select_dtypes(include=['int64'])  # Select only int64 datatypes
-    categories = categories.drop('id', axis=1)  # Drop id column as irrelevant
+    categories = df[df.columns[:-4]]
     X = df['message'].values
     y = categories.values
     category_names = list(categories.columns)
@@ -72,7 +71,9 @@ def build_model():
     """
     cache_dir = "."
     xgb = MultiOutputClassifier(estimator=XGBClassifier(n_jobs=-1,
-                                                        scale_pos_weight=5),
+                                                        scale_pos_weight=10,
+                                                        verbosity=0,
+                                                        use_label_encoder=False),
                                 n_jobs=-1)
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize, ngram_range=(1, 1))),
@@ -83,16 +84,21 @@ def build_model():
     return pipeline
 
 
-def build_model_gridsearch():
+def perform_gridsearch():
     """
     Performs grid search to find best parameters
+
+    Due to imbalanced data, f1_macro was chosen as scoring
+    Choosing f1_macro results in a bigger penalisation when our model does not perform well with the minority classes
 
     :return: cv: GridSearch model
 
     """
     cache_dir = "."
     xgb = MultiOutputClassifier(estimator=XGBClassifier(n_jobs=-1,
-                                                        scale_pos_weight=5),
+                                                        scale_pos_weight=5,
+                                                        verbosity=0,
+                                                        use_label_encoder=False),
                                 n_jobs=-1)
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
@@ -100,12 +106,12 @@ def build_model_gridsearch():
         ('clf', xgb)
     ], memory=cache_dir, verbose=True)
 
+    # Parameters vect__ngram_range and tfidf__use_idf were tried and best parameters were inputted
     parameters = {
-        'vect__ngram_range': ((1, 1), (1, 2)),
-        'tfidf__use_idf': (True, False)
+        'clf__estimator__scale_pos_weight': [1, 10, 50, 100]  # parameter to tune for imbalanced data
     }
 
-    cv = GridSearchCV(pipeline, param_grid=parameters, verbose=3)
+    cv = GridSearchCV(pipeline, param_grid=parameters, scoring='f1_macro', verbose=3)
 
     return cv
 
@@ -128,8 +134,8 @@ def evaluate_model(model, X_test, Y_test, category_names):
             accuracy_score(Y_test[:, i], y_pred[:, i]),
             precision_score(Y_test[:, i], y_pred[:, i]),
             recall_score(Y_test[:, i], y_pred[:, i]),
-            f1_score(Y_test[:, i, y_pred[:, i]])
-            )
+            f1_score(Y_test[:, i], y_pred[:, i])
+        )
         )
 
 
@@ -170,18 +176,20 @@ def main():
         print('Trained model saved!')
         if sys.argv[3] == '1':
             # Grid Search
-            print('Building model with GridSearch...')
-            model_cv = build_model_gridsearch()
-            print(model_cv.get_params())
-
-            print('Training model GridSearch...')
-            model_cv.fit(X_train, Y_train)
-
-            print("\nBest Parameters:", model_cv.best_params_)
+            print('Running GridSearch...')
+            grid = perform_gridsearch()
+            grid_result = grid.fit(X_train, Y_train)
+            print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
+            # report all configurations
+            means = grid_result.cv_results_['mean_test_score']
+            stds = grid_result.cv_results_['std_test_score']
+            params = grid_result.cv_results_['params']
+            for mean, stdev, param in zip(means, stds, params):
+                print("%f (%f) with: %r" % (mean, stdev, param))
 
     else:
         print('Please provide the filepath of the disaster messages database '
-              'as the first argument and the filepath of the pickle file to ' 
+              'as the first argument and the filepath of the pickle file to '
               'save the model to as the second argument and 0 or 1 as the third argument. \n'
               '(0 to skip Grid Search, 1 to run Grid Search)'
               ' \nExample: python train_classifier.py ../data/DisasterResponse.db classifier.pkl 0')
