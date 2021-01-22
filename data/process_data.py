@@ -27,7 +27,8 @@ def clean_data():
 
     :return: cleaned DataFrame
     """
-    df = load_data('disaster_messages.csv', 'disaster_categories.csv')
+    messages_filepath, categories_filepath = sys.argv[1:3]
+    df = load_data(messages_filepath=messages_filepath, categories_filepath=categories_filepath)
     # Split the values in the `categories` column on the `;` character
     categories = df['categories'].str.split(pat=';', expand=True)
     # Extract a list of new column names for categories
@@ -45,11 +46,9 @@ def clean_data():
     # Remove duplicates
     duplicates_bool = df.duplicated()
     df = df[~duplicates_bool]
-    # Drop rows with elements other than 0 or 1
-    categories = df.select_dtypes(include=['int64'])  # Select only int64 datatypes
-    categories = categories.drop('id', axis=1)
-    indices = categories[np.isin(categories, [0, 1], invert=True)].index
-    df = df.drop(index=indices)
+    # Replace values of 2's with 1's
+    categories = df[df.columns[:-4]]  # Select only categories
+    categories[categories.values == 2] = 1
 
     def is_empty_or_blank(msg):
         """Checks if given string is empty or contain only white spaces"""
