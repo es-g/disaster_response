@@ -41,7 +41,7 @@ Refer to conda [documentation](https://docs.conda.io/projects/conda/en/latest/us
 
 `cd models`
 
-`python train_classifier.py ../data/DisasterResponse.db <Your ML model name>.pkl 0`
+`python train_classifier.py ../data/<Your database name>.db <Your ML model name>.pkl 0`
 
 * To run web app on local machine
 
