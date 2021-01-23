@@ -47,17 +47,7 @@ def clean_data():
     duplicates_bool = df.duplicated()
     df = df[~duplicates_bool]
     # Replace values of 2's with 1's
-    categories = df[df.columns[:-4]]  # Select only categories
-    categories[categories.values == 2] = 1
-
-    def is_empty_or_blank(msg):
-        """Checks if given string is empty or contain only white spaces"""
-        return re.search("^\s*$", msg)
-
-    is_blank = [is_empty_or_blank(elem) for elem in df['message']]
-    ind = [i for i, val in enumerate(is_blank) if val is not None]
-    # Drop elements that contain empty message
-    df.drop(index=ind, inplace=True)
+    df.loc[df['related'] == 2, 'related'] = 1
 
     return df
 
