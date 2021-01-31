@@ -1,5 +1,6 @@
 import gzip
 import json
+import os
 import pickle
 
 import plotly
@@ -29,13 +30,27 @@ def tokenize(text):
 
 
 # load data
-engine = create_engine('sqlite:///../data/DisasterResponse.db')
+def find_filename(file_ex):
+    """
+    Returns first filename with specified extension. E.g. '.db', '.pkl'
+    :return: file - filename
+    """
+
+    filenames = os.listdir('../data')
+    filenames.extend(os.listdir('../models'))
+    for file in filenames:
+        if file.endswith(file_ex):
+            return file
+
+
+engine = create_engine('sqlite:///../data/{}'.format(find_filename('.db')))
+
 df = pd.read_sql_table('data', engine)
 categories = df.select_dtypes(include=['int64'])  # Select only int64 datatypes
 categories = categories.drop('id', axis=1)  # Drop id column as irrelevant
 
 # load model
-with gzip.open("../models/classifier.pkl", 'rb') as f:
+with gzip.open("../models/{}".format(find_filename('.pkl')), 'rb') as f:
     p = pickle.Unpickler(f)
     model = p.load()
 
@@ -44,7 +59,6 @@ with gzip.open("../models/classifier.pkl", 'rb') as f:
 @app.route('/')
 @app.route('/index')
 def index():
-
     # extract data needed for visuals
     mean_categories = categories.mean()
     category_names = categories.columns
@@ -116,8 +130,5 @@ def go():
     )
 
 
-# def main():
-#
-#
 if __name__ == "__main__":
     app.run(host='127.0.0.1', port=3001, debug=True)
