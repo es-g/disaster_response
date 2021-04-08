@@ -7,7 +7,7 @@ During such events, disaster response organisations have the least capacity to f
 
 This project analyses thousands of real messages sent during natural disasters, either through social media or directly to disaster response organisations.
 
-This project aims to help disaster response professionals filter out the relevant messages and classify the message category (e.g. water, medical supplies, food, etc.).
+This project aims to help disaster response professionals filter the relevant messages and classify the message category (e.g. water, medical supplies, food, etc.).
 
 
 ## Frameworks used
